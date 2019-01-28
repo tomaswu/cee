@@ -6,7 +6,7 @@
 '''
 
 import sqlalchemy,json
-from sqlalchemy import create_engine,Column,Integer,String
+from sqlalchemy import create_engine,Column,Integer,String,text  #text can help query data by regular expression.
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,7 +15,7 @@ Firstly, the data in txt file should be input into a database for
 conveniently analyzing. 
 '''
 def to_database(filename):
-    db=create_engine('mysql+mysqldb://root:123456@localhost/cee?charset=utf8',echo=True)
+    db=create_engine('mysql+mysqldb://root:123456@localhost/cee?charset=utf8',echo=False)  #echo = True means print the sql code.
     base=declarative_base()
     class university(base):
         __tablename__='ESL of CEE'
@@ -46,7 +46,7 @@ def to_database(filename):
             )
             session.add(col_data)
             n=n+1
-            if n==50:
+            if n==500:
                 session.commit()
                 n=0
     session.commit()
@@ -55,7 +55,7 @@ def to_database(filename):
 
 
 def get_score(colloge_name):
-    db=create_engine('mysql+mysqldb://root:123456@localhost/cee?charset=utf8',echo=True)
+    db=create_engine('mysql+mysqldb://root:123456@localhost/cee?charset=utf8',echo=False)
     base=declarative_base()
     class university(base):
         __tablename__='ESL of CEE'
@@ -69,7 +69,7 @@ def get_score(colloge_name):
         average_score=Column(String(64))
     Session=sessionmaker(bind=db)
     session=Session()
-    ret = session.query(university).filter_by(colloge=colloge_name).all()
+    ret = session.query(university).filter(university.colloge.contains(colloge_name)).all() #contains is common.
     return ret
 
 
@@ -77,7 +77,10 @@ if __name__=='__main__':
     
     import matplotlib.pyplot as plt
     # [to_database('test{}.txt'.format(i)) for i in range(1,5) ]
-    ret=get_score('西南科技大学')
+    
+    ret=get_score('四川大学')
+    for i in ret:
+        print(i.colloge,i.branch,i.year,i.average_score)
     
     plt.figure()
     x,y=[],[]
