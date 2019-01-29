@@ -31,6 +31,7 @@ def getContent(url):
     return content
 
 def parseContent(content):
+    result=[]
     r=r'<dl>.*?</dl>'
     data=re.findall(r,content,re.DOTALL)
     for i in data:
@@ -41,8 +42,9 @@ def parseContent(content):
         recruit_batch=data[1][8:-4]
         candidate_branch=data[2][8:-4]
         score_url=re.findall(r'http:.*?\"',data[3])[0][:-1]
-        return [colloge,recruit_location,recruit_batch,candidate_branch,score_url]
-
+        result.append([colloge,recruit_location,recruit_batch,candidate_branch,score_url])
+    return result
+        
 
 
 if __name__=="__main__":
