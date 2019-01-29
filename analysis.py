@@ -69,25 +69,29 @@ def get_score(colloge_name):
         average_score=Column(String(64))
     Session=sessionmaker(bind=db)
     session=Session()
-    ret = session.query(university).filter(university.colloge.contains(colloge_name)).all() #contains is common.
+    # ret = session.query(university).filter(university.colloge.contains(colloge_name)).all() #contains is common.
+    ret = session.query(university).filter(university.colloge==colloge_name).all()
     return ret
 
 
 if __name__=='__main__':
-    
+    import numpy as np
     import matplotlib.pyplot as plt
     # [to_database('test{}.txt'.format(i)) for i in range(1,5) ]
     
-    ret=get_score('四川大学')
+    ret=get_score('西南科技大学')
     for i in ret:
         print(i.colloge,i.branch,i.year,i.average_score)
     
+    # for analysizing, the data should be shown by figure.
     plt.figure()
     x,y=[],[]
     for i in ret:
         x.append(float(i.year))
-        y.append(float(i.average_score))
-    plt.scatter(x,y)
+        y.append(float(i.average_score))  
+    a=np.array([x,y])
+    b=a.T[np.lexsort(a[0,None])].T   #sort the data along x.
+    plt.plot(b[0],b[1],marker='o')
     plt.show()
 
     
