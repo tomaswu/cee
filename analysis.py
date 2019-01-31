@@ -2,7 +2,7 @@
 '''
     @Author: Tomas Wu 
     @Date: 2019-01-28 13:52:23 
-    @Desc: analysize the data test.txt gotted from a selenium spyder
+    @Desc: analysis the data test.txt gotten from a selenium spyder.
 '''
 
 import sqlalchemy,json
