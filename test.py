@@ -37,20 +37,44 @@
 
 
 
-# list sort test
+# # list sort test
 
-import numpy as np
+# import numpy as np
 
-a=np.array([['1', 'b', '5'],
-            ['3', 'c', '3'],
-            ['5', 'a', '4'],
-            ['4', 'd', '1'],
-            ['2', 'f', '2']])
+# a=np.array([['1', 'b', '5'],
+#             ['3', 'c', '3'],
+#             ['5', 'a', '4'],
+#             ['4', 'd', '1'],
+#             ['2', 'f', '2']])
 
-print(a)
+# print(a)
 
-# b=np.sort(a,axis=0)
-# c=np.msort(a)
-d=a[np.lexsort(a.T[0,None])].T 
+# # b=np.sort(a,axis=0)
+# # c=np.msort(a)
+# d=a[np.lexsort(a.T[0,None])].T 
 
-print(d)
+# print(d)
+
+# multiprocess test
+
+import os,time
+import multiprocessing as mpi
+
+def wait(i):
+    t1=time.time()
+    print('I am {} and apply for {}s.'.format(os.getpid(),i))
+    time.sleep(i)
+    t2=time.time()
+    print('I have done, using {}s.'.format(t2-t1))
+
+if __name__=='__main__':
+    # p=[mpi.Process(target=wait,args=(i,)) for i in range(1,5)]
+    
+    # [i.start() and i.join() for i in p] 
+    
+    p=mpi.Pool()
+    for i in range(1,5):
+        p.apply_async(wait,(i,))
+    p.close()
+    p.join()
+    print('all done')
