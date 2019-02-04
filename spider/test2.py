@@ -1,5 +1,43 @@
-import json
+import spider
+import re,json
 
-a=str({'兰州大学': ['兰州大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/35/result/16/2/'], '西北农林科技大学': ['西北农林科技大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/37/result/16/2/'], '中南大学': ['中南大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/38/result/16/2/'], '东北大学秦皇岛分校': ['东北大学秦皇岛分校', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/40/result/16/2/'], '北京交通大学': ['北京交通大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/43/result/16/2/'], '北京外国语大学': ['北京外国语大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/51/result/16/2/'], '中央财经大学': ['中央财经大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/52/result/16/2/'], '对外经济贸易大学': ['对外经济贸易大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/53/result/16/2/'], '华北电力大学': ['华北电力大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/57/result/16/2/'], '华北电力大学(保定)': ['华北电力大学(保定)', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/58/result/16/2/'], '大连海事大学': ['大连海事大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/63/result/16/2/'], '东北林业大学': ['东北林业大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/67/result/16/2/'], '华东理工大学': ['华东理工大学', '四川', '第一批', '理科', 'http://college.gaokao.com/school/tinfo/68/result/16/1/'], '上海外国语大学': ['上海外国语大学', '四川', '提前批', '文科', 'http://college.gaokao.com/school/tinfo/71/result/16/2/'], '苏州大学': ['苏州大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/73/result/16/2/'], '南京理工大学': ['南京理工大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/75/result/16/2/'], '河海大学': ['河海大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/76/result/16/2/'], '江南大学': ['江南大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/77/result/16/2/'], '中国药科大学': ['中国药科大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/79/result/16/2/'], '南京师范大学': ['南京师范大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/80/result/16/2/'], '安徽大学': ['安徽大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/81/result/16/2/'], '福州大学': ['福州大学', '四川', '第一批', '文科', 'http://college.gaokao.com/school/tinfo/83/result/16/2/'], '华中师范大学': ['华中师范大学', '四川', '提前批', '文科', 'http://college.gaokao.com/school/tinfo/86/result/16/2/'], '暨南大学': ['暨南大学', '四川', '提前批', '文科', 'http://college.gaokao.com/school/tinfo/88/result/16/2/']})
-a.replace('\"','\'')
-print(a)
+def parseContent(content,m=0,*args, **kwargs):
+    result=[]
+    if m==0:
+        r=r'<dl>.*?</dl>'
+        total_data=re.findall(r,content,re.DOTALL)
+        for i in total_data:
+            college=re.findall(r'k\">.{,20}?</a',i)[0][3:-3]  #get the college name.
+            data=re.findall(r'li>.*?</li',i)
+            recruit_location=data[0][8:-4]
+            recruit_batch=data[1][8:-4]
+            candidate_branch=data[2][8:-4]
+            score_url=re.findall(r'http:.*?\"',data[3])[0][:-1]
+            result.append([college,recruit_location,recruit_batch,candidate_branch,score_url])
+    elif m==1:
+        total_data=re.findall(r'<tr.*?</tr',content,re.DOTALL)[1:]
+        # print(total_data)
+        for i in total_data:
+            data=[i[1:-1] for i in re.findall(r'>.{1,15}?<',i)]
+            print(data)
+            
+        keys=['年份','最低','最高','平均','录取人数','录取批次']
+        ye={}
+        for i in range(len(keys)):
+            try:
+                ye[keys[i]]=data[i]
+            except:
+                ye[keys[i]]='------'
+            
+            data_json=json.dumps(ye)
+            result.append(data_json)
+    return result
+
+
+url='http://college.gaokao.com/school/tinfo/138/result/16/2/'
+
+y=spider.getContent(url,m=1)
+
+y=parseContent(y,m=1)
+
+print(y)

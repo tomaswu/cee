@@ -52,10 +52,17 @@ def parseContent(content,m=0,*args, **kwargs):
             result.append([college,recruit_location,recruit_batch,candidate_branch,score_url])
     elif m==1:
         total_data=re.findall(r'<tr.*?</tr',content,re.DOTALL)[1:]
+        # print(total_data)
         for i in total_data:
             data=[i[1:-1] for i in re.findall(r'>.{1,15}?<',i)]
-            data_json=json.dumps({'年份':data[0],'最低':data[1],'最高':data[2],'平均':data[3], \
-                                    '录取人数':data[4],'录取批次':data[5]})
+        keys=['年份','最低','最高','平均','录取人数','录取批次']
+        ye={}
+        for i in range(len(keys)):
+            try:
+                ye[keys[i]]=data[i]
+            except:
+                ye[keys[i]]='------'
+            data_json=json.dumps(ye)
             result.append(data_json)
     return result
 
@@ -69,7 +76,7 @@ def save_data(data):
 # test url:'http://college.gaokao.com/school/tinfo/34/result/16/2/'
         
 def urls():
-    for i in range(1,836):
+    for i in range(1,4):
         yield 'http://college.gaokao.com/schpoint/a16/p{}'.format(i)
 
 def process(i):
@@ -79,7 +86,12 @@ def process(i):
     print('I am {},have {} urls to fetch.'.format(os.getpid(),len(pd)))
     for j in range(len(pd)):
         ur=pd[j][-1]
-        pd[j].append(parseContent(getContent(ur,1),1))
+        print('{} fetching {}'.format(os.getpid(),ur))
+        try:
+            pd[j].append(parseContent(getContent(ur,1),1))
+        except:
+            print('fetch error {}'.format(ur))
+            continue
     print('I am {},saving data.'.format(os.getpid()))
     pd_json={}
     for i in range(len(pd)):
